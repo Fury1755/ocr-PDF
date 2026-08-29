@@ -2,3 +2,18 @@
 name = "boxis_ocrer"
 version = "0.1.0"
 requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.5.2",
+    "opencv-python>=5.0.0.93",
+    "pillow>=12.3.0",
+    "pymupdf>=1.28.2",
+    "tesserocr",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.16.5",
+]
+
+[tool.uv.sources]
+tesserocr = { path = "tesserocr-2.10.0-cp313-cp313-win_amd64.whl" }
