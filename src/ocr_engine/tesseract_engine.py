@@ -187,9 +187,9 @@ class TesseractEngine(OCREngine):
         text = api.GetIterator()
         result = []
 
-        for word in iterate_level(iterator=text, level=RIL.WORD):
-            raw_string: str = word.GetUTF8Text(RIL.WORD)
-            bbox: list[int] = word.BoundingBoxInternal(RIL.WORD)
+        for word in iterate_level(iterator=text, level=RIL.TEXTLINE):
+            raw_string: str = word.GetUTF8Text(RIL.TEXTLINE)
+            bbox: list[int] = word.BoundingBoxInternal(RIL.TEXTLINE)
             result.append((raw_string, (bbox[0], bbox[1], bbox[2], bbox[3])))
 
         return result
