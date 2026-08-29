@@ -117,12 +117,12 @@ class MyGUI:
         
         if not self.pdf_queue:
             self.append_message("⚠️ Queue is empty")
-        
-        self.run_button.config(state=tk.DISABLED, text = "⏳ Processing...")
-        import threading
-        controller= OCRController(self.append_message, self.complete_callback, self.pdf_queue.copy())
-        thread = threading.Thread(target=controller.process_queue, daemon=True)
-        thread.start()
+        else:
+            self.run_button.config(state=tk.DISABLED, text = "⏳ Processing...")
+            import threading
+            controller= OCRController(self.append_message, self.complete_callback, self.pdf_queue.copy())
+            thread = threading.Thread(target=controller.process_queue, daemon=True)
+            thread.start()
 
 
 
