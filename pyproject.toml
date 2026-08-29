@@ -10,16 +10,13 @@ dependencies = [
     "pillow>=12.3.0",
     "pre-commit>=4.6.2",
     "pymupdf>=1.28.2",
-    "tesserocr",
 ]
 
 [dependency-groups]
 dev = [
+    "pyinstaller>=6.22.2",
     "ruff>=0.16.5",
 ]
-
-[tool.uv.sources]
-tesserocr = { path = "tesserocr-2.10.0-cp313-cp313-win_amd64.whl" }
 
 [tool.pyright]
 allowedUntypedLibraries =["tesserocr"]
