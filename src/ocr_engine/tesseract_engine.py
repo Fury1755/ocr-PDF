@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from pymupdf import Document, Page
-from tesserocr import PyTessBaseAPI  # pyright: ignore[reportMissingImports]
+from tesserocr import PyTessBaseAPI, RIL, iterate_level  # pyright: ignore[reportMissingImports]
 
 from src.ocr_engine.base import OCREngine
 from src.ocr_engine.preprocessing_utils import deskew_image, page_to_numpy
@@ -93,7 +93,7 @@ class TesseractEngine(OCREngine):
 
         return text
 
-    def process_doc(self, doc: Document):
+    def process_doc(self, doc: Document, return_with_boxes: bool = False):
         """
         Lazily streams tuples containing the page number and the text contents of a pdf.
 
@@ -128,7 +128,7 @@ class TesseractEngine(OCREngine):
                 # fill the thread pool up with futures
                 while len(pending) < workers and page_idx < len(doc):
                     pending[page_idx] = executor.submit(
-                        self.process_page, doc[page_idx]
+                        self.process_page_with_boxes if return_with_boxes else self.process_page, doc[page_idx]
                     )
                     future_to_page[pending[page_idx]] = page_idx
                     page_idx += 1
@@ -150,3 +150,33 @@ class TesseractEngine(OCREngine):
                             yield (key, results[key])
                             del results[key]
                             next_in_line += 1
+
+    def process_page_with_boxes(self, page: Page) -> list[tuple[str, tuple[int, int, int, int]]]:
+        '''
+        Processes each page individually, but returns the text as well as the coordinates of the boxes.
+        Also include preprocessing.
+
+        Args:
+            doc(pymupdf.Document)
+        Returns:
+            list[(text, (x1, x2, y1, y2))]
+        '''
+
+        # same as process_page
+        img_np = page_to_numpy(page)
+        preprocessed = self._preprocess(img_np)
+        pil_img = Image.fromarray(preprocessed)
+        api = self._get_api()
+        api.SetImage(pil_img)
+
+        # this is where it gets different.
+        api.Recognize() # we actually need this, just that api.GetUTF8Text triggered it for us.
+        text = api.GetIterator()
+        result = []
+
+        for word in iterate_level(iterator=text, level=RIL.WORD):
+            raw_string: str = word.GetUTF8Text(RIL.WORD)
+            bbox: list[int] = word.BoundingBoxInternal(RIL.WORD)
+            result.append((raw_string, (bbox[0], bbox[1], bbox[2], bbox[3])))
+
+        return result
