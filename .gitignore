@@ -3,3 +3,4 @@ Tesseract-OCR
 .env
 *.pyc
 __pycache__/
+tesserocr-2.10.0-cp313-cp313-win_amd64.whl
