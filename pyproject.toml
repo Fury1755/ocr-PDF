@@ -3,9 +3,11 @@ name = "boxis_ocrer"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
+    "deskew>=1.6.1",
     "numpy>=2.5.2",
     "opencv-python>=5.0.0.93",
     "pillow>=12.3.0",
+    "pre-commit>=4.6.2",
     "pymupdf>=1.28.2",
     "tesserocr",
 ]
@@ -17,3 +19,14 @@ dev = [
 
 [tool.uv.sources]
 tesserocr = { path = "tesserocr-2.10.0-cp313-cp313-win_amd64.whl" }
+
+[tool.pyright]
+allowedUntypedLibraries =["tesserocr"]
+reportMissingTypeStubs = false
+include = ["src"]
+extraPaths=["src"]
+typeCheckingMode = "basic"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
