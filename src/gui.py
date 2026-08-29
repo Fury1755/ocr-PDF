@@ -130,6 +130,3 @@ def main():
     root = tk.Tk() # the main window of the application
     app = MyGUI(root)
     app.root.mainloop()
-
-if __name__ == "__main__": # checks if the current file is the entry point
-    main()
