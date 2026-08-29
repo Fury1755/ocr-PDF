@@ -1,2 +1,5 @@
 Tesseract-OCR
 .vscode
+.env
+*.pyc
+__pycache__/

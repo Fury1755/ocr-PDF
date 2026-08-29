@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
     "deskew>=1.6.1",
+    "dotenv>=0.9.9",
     "numpy>=2.5.2",
     "opencv-python>=5.0.0.93",
     "pillow>=12.3.0",
