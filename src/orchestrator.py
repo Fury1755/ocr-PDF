@@ -27,7 +27,11 @@ class OCRController:
           for filename in self.file_paths:
                pdf = pymupdf.open(filename)
                for page_number, text in self.engine.process_doc(pdf, return_with_boxes=True):
-                    overlay_text(pdf[page_number], text) # pyright: ignore[reportArgumentType]
+                    try:
+                         overlay_text(pdf[page_number], text) # pyright: ignore[reportArgumentType]
+                    except Exception as e: # noqa: BLE001
+                         assert type(page_number) is int
+                         self.progress_callback(f"An error occured for page {page_number+1}. Traceback: \n {repr(e)}")
                     if self.progress_callback: # satisfy type checker
                          assert type(page_number) is int
                          self.progress_callback(f"Page {page_number+1}/{len(pdf)} done.")

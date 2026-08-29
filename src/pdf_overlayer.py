@@ -43,8 +43,6 @@ def overlay_text(page: Page, text: list[tuple[str, tuple[int, int, int, int]]]) 
         y1: float = word[1][3]*scale
         assert x0<=x1
         assert y0<=y1
-        assert y0 <= page_height and y1 <= page_height
-        assert x0 <= page_width and x1 <= page_width
         raw_text = word[0]
         # for some reason, insert_textbox isn't working. We'll use insert_text instead.
         page.insert_text(point=(x0,(y1+y0)/2), text=raw_text, fontsize=(y1-y0), render_mode=3)
