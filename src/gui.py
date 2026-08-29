@@ -107,7 +107,7 @@ class MyGUI:
         self.append_message(text)
         self.remove_pdf()
 
-        if self.listbox.size == 0:
+        if len(self.pdf_queue) == 0:
             self.run_button.config(state=tk.NORMAL, text = "Process PDF(s)")
 
     def overlay(self):
