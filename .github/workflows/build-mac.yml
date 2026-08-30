@@ -1,0 +1,56 @@
+name: Build macOS App
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      
+      - name: Install Tesseract and Leptonica
+        run: |
+          brew install leptonica
+          brew install tesseract
+          brew install tesseract-lang
+      
+      - name: Install Python Packages with uv
+        run: |
+          uv pip install --system pyinstaller pymupdf opencv-python pillow numpy deskew tesserocr
+      
+      - name: Build App
+        run: |
+          TESSERACT_LIB=$(brew list tesseract | grep '\.dylib$' | grep -v '\.dylib\.' | head -1)
+          LIBLEPT=$(brew list leptonica | grep '\.dylib$' | grep -v '\.dylib\.' | head -1)
+          TESSDATA_DIR=$(brew --prefix tesseract)/share/tessdata
+          
+          pyinstaller --windowed --onedir \
+            --add-binary "$TESSERACT_LIB:." \
+            --add-binary "$LIBLEPT:." \
+            --add-data "$TESSDATA_DIR:Tesseract-OCR/tessdata" \
+            --name "OCR-Application" src/main.py
+      
+      - name: Verify libraries and size
+        run: |
+          echo "🔍 Checking bundled libraries..."
+          find dist/OCR-Application.app -name "*.dylib" | head -10
+          echo "📦 Total size of .app:"
+          du -sh dist/OCR-Application.app
+          echo "📂 Checking tessdata..."
+          find dist/OCR-Application.app -name "*.traineddata" | head -5
+      
+      - name: Upload App
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS-App
+          path: dist/OCR-Application.app
