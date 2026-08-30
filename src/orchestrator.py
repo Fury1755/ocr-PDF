@@ -4,7 +4,7 @@ import pymupdf
 
 from src.ocr_engine.tesseract_engine import TesseractEngine
 from src.path_resolver import get_tesseract_data_path
-from src.pdf_overlayer import overlay_text
+from src.pdf_overlayer import flatten_pdf, overlay_text
 
 
 class OCRController:
@@ -28,10 +28,11 @@ class OCRController:
                pdf = pymupdf.open(filename)
                for page_number, text in self.engine.process_doc(pdf, return_with_boxes=True):
                     try:
+                         flatten_pdf(pdf[page_number])
                          overlay_text(pdf[page_number], text) # pyright: ignore[reportArgumentType]
                     except Exception as e: # noqa: BLE001
                          assert type(page_number) is int
-                         self.progress_callback(f"An error occured for page {page_number+1}. Traceback: \n {repr(e)}")
+                         self.progress_callback(f"An error occured for page {page_number+1}. Traceback: \n {e!r}")
                     if self.progress_callback: # satisfy type checker
                          assert type(page_number) is int
                          self.progress_callback(f"Page {page_number+1}/{len(pdf)} done.")
