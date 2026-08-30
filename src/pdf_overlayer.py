@@ -1,23 +1,24 @@
 from pymupdf import Page, Pixmap
 
 
-def flatten_pdf(page: Page) -> Page:
+def flatten_pdf(page: Page):
     '''
     Flattens whatever PDF with previously overlaid text into a PDF with no text.
+    Mutates the page by (copy) reference.
     '''
 
     # render the page into an image(pixmap)
     pix: Pixmap = page.get_pixmap(dpi=300)
-    page.clean_contents()
 
     rect = page.rect # apparently we need this
-    page.insert_image(rect, pixmap=pix)
+    page.add_redact_annot(rect)
+    page.apply_redactions()
 
-    return page
+    page.insert_image(rect, pixmap=pix)
 
 def overlay_text(page: Page, text: list[tuple[str, tuple[int, int, int, int]]]) -> None:
     '''
-    Overlays text on top of a page. Modifies the page by reference.
+    Overlays text on top of a page. Modifies the page by (copy) reference.
 
     Args: 
         page(pymupdf.Page): The page from that particular page
@@ -30,14 +31,14 @@ def overlay_text(page: Page, text: list[tuple[str, tuple[int, int, int, int]]]) 
     # To convert Tesseract coordinates to pymupdf points we multiply by 72/300.
     scale: float = 72/300
 
-    for word in text:
+    for line in text:
         # multiply the coordinates by the scale factor.
-        x0: float = word[1][0]*scale
-        y0: float= word[1][1]*scale
-        x1: float = word[1][2]*scale
-        y1: float = word[1][3]*scale
+        x0: float = line[1][0]*scale
+        y0: float= line[1][1]*scale
+        x1: float = line[1][2]*scale
+        y1: float = line[1][3]*scale
         assert x0<=x1
         assert y0<=y1
-        raw_text = word[0]
+        raw_text = line[0]
         # for some reason, insert_textbox isn't working. We'll use insert_text instead.
         page.insert_text(point=(x0,(y1+y0)/2), text=raw_text, fontsize=(y1-y0), render_mode=3)
