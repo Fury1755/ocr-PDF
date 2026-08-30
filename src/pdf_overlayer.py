@@ -30,13 +30,8 @@ def overlay_text(page: Page, text: list[tuple[str, tuple[int, int, int, int]]]) 
     # To convert Tesseract coordinates to pymupdf points we multiply by 72/300.
     scale: float = 72/300
 
-    # Tesseract y-coords go from top to bottom while pymupdf's go from bottom to top
-    page_height = page.rect.height
-    page_width = page.rect.width
-
     for word in text:
-        # multiply the coordinates by the scale factor and flip the y-axes
-        # note the order is also flipped
+        # multiply the coordinates by the scale factor.
         x0: float = word[1][0]*scale
         y0: float= word[1][1]*scale
         x1: float = word[1][2]*scale
